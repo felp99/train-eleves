@@ -17,7 +17,7 @@ package train;
  * @author Philippe Tanguy <philippe.tanguy@imt-atlantique.fr>
  * @version 0.3
  */
-public class Train {
+public class Train implements Runnable {
 	private final String name;
 	private Position pos;
 	private final Railway railway;
@@ -37,6 +37,10 @@ public class Train {
 	
 	public void moveToNextPosition() {
 		this.pos = this.railway.nextPosition(pos);
+		
+		// Setting the train to the actual Element when it moves
+		this.pos.getPos().setTrain(this);
+		System.out.println(this);
 	}
 
 
@@ -48,5 +52,12 @@ public class Train {
 		result.append(" is on ");
 		result.append(this.pos);
 		return result.toString();
+	}
+
+	@Override
+	public void run() {
+		while (this.railway.getElementIndexByPosition(pos) < this.railway.getElementsSize() - 1 ) {
+			moveToNextPosition();
+		}
 	}
 }

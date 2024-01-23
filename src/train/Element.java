@@ -16,6 +16,7 @@ package train;
 public abstract class Element {
 	private final String name;
 	protected Railway railway;
+	private Train train = null;
 
 	protected Element(String name) {
 		if(name == null)
@@ -30,6 +31,11 @@ public abstract class Element {
 		
 		this.railway = r;
 	}
+	
+	public void setTrain(Train train) {
+		this.train = train;
+	}
+
 
 	@Override
 	public String toString() {

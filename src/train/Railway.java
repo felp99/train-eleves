@@ -37,6 +37,10 @@ public class Railway {
             }}
 		return -1;
 		}
+	
+	public int getElementsSize() {
+		return this.elements.length;
+	}
 
 	@Override
 	public String toString() {
