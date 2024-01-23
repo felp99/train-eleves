@@ -17,7 +17,7 @@ public abstract class Element {
 	private final String name;
 	protected Railway railway;
 	private Train train = null;
-
+	
 	protected Element(String name) {
 		if(name == null)
 			throw new NullPointerException();
@@ -32,10 +32,22 @@ public abstract class Element {
 		this.railway = r;
 	}
 	
-	public void setTrain(Train train) {
-		this.train = train;
+	public boolean thereIsTrain() {
+		return (this.train != null);
 	}
-
+	
+	public synchronized void setTrain(Train train) {
+		while(thereIsTrain()) {
+			try {
+				wait();				
+			}catch (Exception e){		
+				e.printStackTrace();
+			}finally {
+				this.train = train;
+				notifyAll();
+			}
+		}
+	}
 
 	@Override
 	public String toString() {

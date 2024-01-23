@@ -36,11 +36,17 @@ public class Train implements Runnable {
 	}
 	
 	public void moveToNextPosition() {
-		this.pos = this.railway.nextPosition(pos);
-		
-		// Setting the train to the actual Element when it moves
-		this.pos.getPos().setTrain(this);
-		System.out.println(this);
+		if (pos.getPos().getClass() ==  Section.class || this.railway.getElementIndexByPosition(pos) == 0 ) {
+			
+			this.pos = this.railway.nextPosition(pos);
+			
+			// Setting the train to the actual Element when it moves
+			this.pos.getPos().setTrain(this);
+			System.out.println(this);
+		}else{
+			this.pos.changeDir();
+			this.pos = this.railway.nextPosition(pos);
+		}
 	}
 
 
@@ -56,7 +62,7 @@ public class Train implements Runnable {
 
 	@Override
 	public void run() {
-		while (this.railway.getElementIndexByPosition(pos) < this.railway.getElementsSize() - 1 ) {
+		while (true) {
 			moveToNextPosition();
 		}
 	}
