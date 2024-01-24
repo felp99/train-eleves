@@ -19,10 +19,47 @@ public class Railway {
 		for (Element e : elements)
 			e.setRailway(this);
 	}
+
+	public boolean isEdge(Position pos){		
+		int lastIndex = elements.length-1;
+		int elementIndex = this.getElementIndexByPosition(pos);
+		if ((lastIndex == elementIndex && pos.getDir() == Direction.LR)
+		|| (elementIndex == 0 && pos.getDir() == Direction.RL)){
+			return true;
+		}else{
+			return false;
+		}		
+	}
+
+	public synchronized boolean thereIsTrainComing(Position trainPos){
+		for (int i=getElementIndexByPosition(trainPos) ; i < elements.length; i++) {
+			if (this.elements[i].thereIsTrain() && this.elements[i].trainDirection() != trainPos.getDir()){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean canTrainMove(Train train){
+		Position trainPos = train.getPos();
+		if (trainPos.getPos() instanceof Station){
+
+			int iPos = this.getElementIndexByPosition(trainPos);
+
+			while (true) {
+				if (trainPos.getDir() == Direction.LR) {
+					iPos++;
+				} else {
+					iPos--;
+				}
+			}
+		}
+
+		return false;
+	}
 	
 	public Position nextPosition(Position position) {
-		int i = getElementIndexByPosition(position);
-		
+		int i = getElementIndexByPosition(position);		
 		if (position.getDir() == Direction.LR) {
 			return new Position(elements[i+1], Direction.LR);
 		} else {

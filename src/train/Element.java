@@ -27,13 +27,20 @@ public abstract class Element {
 
 	public void setRailway(Railway r) {
 		if(r == null)
-			throw new NullPointerException();
-		
+			throw new NullPointerException();		
 		this.railway = r;
 	}
 	
 	public boolean thereIsTrain() {
 		return (this.train != null);
+	}
+
+	public Direction trainDirection(){
+		if (train != null){
+			return this.train.getPos().getDir();
+		} else {
+			return null;
+		}
 	}
 	
 	public synchronized void setTrain(Train train) {

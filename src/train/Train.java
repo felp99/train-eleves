@@ -36,19 +36,22 @@ public class Train implements Runnable {
 	}
 	
 	public void moveToNextPosition() {
-		if (pos.getPos().getClass() ==  Section.class || this.railway.getElementIndexByPosition(pos) == 0 ) {
-			
-			this.pos = this.railway.nextPosition(pos);
-			
+		if (!this.railway.isEdge(pos) && !this.railway.nextPosition(pos).getPos().thereIsTrain()) {
+			// Setting the train null to the actual Element
+			this.pos.getPos().setTrain(null);		
+			// The train moves
+			this.pos = this.railway.nextPosition(pos);			
 			// Setting the train to the actual Element when it moves
 			this.pos.getPos().setTrain(this);
 			System.out.println(this);
 		}else{
 			this.pos.changeDir();
-			this.pos = this.railway.nextPosition(pos);
 		}
 	}
 
+	public Position getPos(){
+		return this.pos;
+	}
 
 	@Override
 	public String toString() {
@@ -62,8 +65,10 @@ public class Train implements Runnable {
 
 	@Override
 	public void run() {
-		while (true) {
+		int i = 1;
+		while (i < 20) {
 			moveToNextPosition();
+			i++;
 		}
 	}
 }
