@@ -35,22 +35,13 @@ public class Train implements Runnable {
 		this.railway = railway;
 	}
 	
-	public void moveToNextPosition() {
-		if (!this.railway.isEdge(pos) && !this.railway.nextPosition(pos).getPos().thereIsTrain()) {
-			// Setting the train null to the actual Element
-			this.pos.getPos().setTrain(null);		
-			// The train moves
-			this.pos = this.railway.nextPosition(pos);			
-			// Setting the train to the actual Element when it moves
-			this.pos.getPos().setTrain(this);
-			System.out.println(this);
+	public void moveToNextPosition() {		
+		if ((pos.getDir() == Direction.RL)) {
+			this.pos = this.railway.moveRigthToLeft(pos);
 		}else{
-			this.pos.changeDir();
+			this.pos = this.railway.moveLeftToRigth(pos);
 		}
-	}
-
-	public Position getPos(){
-		return this.pos;
+		System.out.println(this);
 	}
 
 	@Override

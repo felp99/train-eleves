@@ -16,7 +16,6 @@ package train;
 public abstract class Element {
 	private final String name;
 	protected Railway railway;
-	private Train train = null;
 	
 	protected Element(String name) {
 		if(name == null)
@@ -25,35 +24,10 @@ public abstract class Element {
 		this.name = name;
 	}
 
-	public void setRailway(Railway r) {
-		if(r == null)
+	public void setRailway(Railway railway) {
+		if(railway == null)
 			throw new NullPointerException();		
-		this.railway = r;
-	}
-	
-	public boolean thereIsTrain() {
-		return (this.train != null);
-	}
-
-	public Direction trainDirection(){
-		if (train != null){
-			return this.train.getPos().getDir();
-		} else {
-			return null;
-		}
-	}
-	
-	public synchronized void setTrain(Train train) {
-		while(thereIsTrain()) {
-			try {
-				wait();				
-			}catch (Exception e){		
-				e.printStackTrace();
-			}finally {
-				this.train = train;
-				notifyAll();
-			}
-		}
+		this.railway = railway;
 	}
 
 	@Override
