@@ -1,5 +1,6 @@
 package train;
 
+import java.util.Arrays;
 
 /**
  * Représentation d'un circuit constitué d'éléments de voie ferrée : gare ou
@@ -10,8 +11,9 @@ package train;
  */
 public class Railway {
 	private final Element[] elements;
-	private int trainLR = 0;
-	private int trainRL = 0;
+	private boolean trainLR = false;
+	private boolean trainRL = false;
+	private boolean[] withTrain;
 
 	public Railway(Element[] elements) {
 		if(elements == null)
@@ -19,6 +21,9 @@ public class Railway {
 		this.elements = elements;
 		for (Element e : elements)
 			e.setRailway(this);
+
+		this.withTrain = new boolean[elements.length];
+        Arrays.fill(withTrain, false);
 	}
 
 	public synchronized boolean isEdge(Position pos){		
@@ -26,7 +31,17 @@ public class Railway {
 		int elementIndex = this.getElementIndexByPosition(pos);
 		if ((elementIndex == 0 && pos.getDir() == Direction.LR) 
 		|| (elementIndex == lastIndex && pos.getDir() == Direction.RL)){
-			return true;
+			return true;			
+		}else{
+			return false;
+		}
+	}
+
+	public synchronized boolean conditionWithTrain(int index, Position pos){
+		if ( (pos.getDir() == Direction.LR) && (index < elements.length - 1) && (getElementIndexByPosition(pos)-1 == 0)) {
+			return this.withTrain[index + 1];
+		}else if((pos.getDir() == Direction.RL) && (index > 0) && (getElementIndexByPosition(pos)+1 == elements.length - 1)){
+			return this.withTrain[index - 1];
 		}else{
 			return false;
 		}
@@ -34,35 +49,75 @@ public class Railway {
 
 	public synchronized Position moveLeftToRigth(Position pos) {
 		int index = getElementIndexByPosition(pos);
-			if (index < elements.length - 1) {
-				return new Position(elements[index + 1], Direction.LR);
-			} else if (index == elements.length - 1) {
-				return new Position(elements[index], Direction.RL);
-			} else {
-				return new Position(elements[index - 1], Direction.RL);
-			}	
+		//System.out.println(conditionWithTrain(index,pos));
+		while ((this.trainRL && isEdge(pos)) || (conditionWithTrain(index,pos)) ) {
+		//while ( (conditionWithTrain(index))) {
+			try {
+				System.out.println("Waiting in moveLeftToRight");
+				wait(1000);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+		}
+		if (index < elements.length - 1) {
+			this.withTrain[index+1] = true;
+			this.withTrain[index] = false;
+			notifyAll();
+			return new Position(elements[index + 1], Direction.LR);			
+		} else if (index == elements.length - 1) {
+			this.withTrain[index] = false;
+			this.trainLR = false;
+			notifyAll();
+			return new Position(elements[index], Direction.RL);			
+		} else {
+			return new Position(elements[index - 1], Direction.RL);
+		}
 	}
 
     public synchronized Position moveRigthToLeft(Position pos) {
 		int index = getElementIndexByPosition(pos);
-		while (this.trainLR == 0) {
-			// Espera activa: El hilo espera hasta que la condición cambie
+		//System.out.println(conditionWithTrain(index,pos));
+		while ((this.trainLR && isEdge(pos)) || (conditionWithTrain(index,pos)) ) {
+		//while ( (conditionWithTrain(index))) {
 			try {
-				wait(); // Se libera el bloqueo mientras espera
+				System.out.println("Waiting in moveRightToLeft");
+				wait(1000);
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
-				// Manejar la interrupción si es necesario
-			}
-			if (index > 0) {
-				return new Position(elements[index - 1], Direction.RL);
-			} else if (index == 0) {
-				return new Position(elements[index], Direction.LR);
-			} else {
-				return new Position(elements[index + 1], Direction.LR);
-			}
+			}			
 		}
-		return pos;
+		if (index > 0) {
+			this.withTrain[index-1] = true;
+			this.withTrain[index] = false;
+			notifyAll();
+			return new Position(elements[index - 1], Direction.RL);
+		} else if (index == 0) {
+			this.withTrain[index] = false;
+			this.trainRL = false;
+			notifyAll();
+			return new Position(elements[index], Direction.LR);
+		} else {
+			return new Position(elements[index + 1], Direction.LR);
+		}
     }
+
+	public synchronized void setTrainLR(boolean value) {
+		this.trainLR = value;
+		notifyAll(); // Awake the threads
+	}
+	
+	public synchronized void setTrainRL(boolean value) {
+		this.trainRL = value;
+		notifyAll(); // Awake the threads
+	}
+
+	public boolean getTrainLR(){
+		return this.trainLR;
+	}
+
+	public boolean getTrainRL(){
+		return this.trainRL;
+	}
 	
 	public int getElementIndexByPosition (Position position) {
         for (int i=0; i < elements.length; i++) {
@@ -86,4 +141,16 @@ public class Railway {
 		}
 		return result.toString();
 	}    
+
+	public String printWithTrain() {
+        StringBuilder result = new StringBuilder("[");
+        for (int i = 0; i < withTrain.length; i++) {
+            result.append(withTrain[i]);
+            if (i < withTrain.length - 1) {
+                result.append(", ");
+            }
+        }
+        result.append("]");
+        return result.toString();
+    }
 }

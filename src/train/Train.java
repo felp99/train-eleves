@@ -36,12 +36,15 @@ public class Train implements Runnable {
 	}
 	
 	public void moveToNextPosition() {		
-		if ((pos.getDir() == Direction.RL)) {
-			this.pos = this.railway.moveRigthToLeft(pos);
+		if (pos.getDir() == Direction.RL) {	
+			this.railway.setTrainRL(true);
+			this.pos = this.railway.moveRigthToLeft(this.pos);			
 		}else{
-			this.pos = this.railway.moveLeftToRigth(pos);
+			this.railway.setTrainLR(true);
+			this.pos = this.railway.moveLeftToRigth(this.pos);
 		}
 		System.out.println(this);
+		//System.out.println(this.railway.printWithTrain());
 	}
 
 	@Override
@@ -57,7 +60,7 @@ public class Train implements Runnable {
 	@Override
 	public void run() {
 		int i = 1;
-		while (i < 20) {
+		while (i<10) {
 			moveToNextPosition();
 			i++;
 		}
