@@ -42,8 +42,8 @@ public class Train implements Runnable {
 			this.pos = this.railway.moveLeftToRigth(this.pos);
 		}
 		System.out.println(this);
-		/*System.out.println(this.railway.printWithTrain());
-		System.out.println("LR:"+this.railway.getTrainLR());
+		System.out.println(this.railway.printWithTrain());
+		/*System.out.println("LR:"+this.railway.getTrainLR());
 		System.out.println("RL:"+this.railway.getTrainRL());
 		System.out.println(this.railway.isEdge(this.pos));*/
 	}

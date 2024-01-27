@@ -17,7 +17,7 @@ public class Main {
 		Position p2 = new Position(D, Direction.RL);
 		try {
 			Train t1 = new Train("1", r, p1);
-			Train t2 = new Train("2", r, p2);			
+			Train t2 = new Train("2", r, p1);			
 			System.out.println(t1);
 			System.out.println(t2);
 
@@ -25,7 +25,7 @@ public class Main {
 			r.incrementCountLR();
 			Thread.sleep(5);	
 			Thread thread2 = new Thread(t2); thread2.setName("T2"); thread2.start();
-			r.incrementCountRL();
+			r.incrementCountLR();
 			
 		} catch (BadPositionForTrainException e) {
 			System.out.println("Le train " + e.getMessage());

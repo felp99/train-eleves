@@ -13,7 +13,7 @@ public class Railway {
 	private final Element[] elements;
 	private int countTrainsLR = 0;
     private int countTrainsRL = 0;
-	private boolean[] withTrain;
+	private boolean[] withTrain;	
 
 	public Railway(Element[] elements) {
 		if(elements == null)
@@ -31,11 +31,13 @@ public class Railway {
 		while ((this.countTrainsRL != 0 && isEdge(pos)) || (index < elements.length - 1 && this.withTrain[index + 1]) ) {
 			try {
 				System.out.println("Waiting in moveLeftToRight");
-				System.out.println(printWithTrain());
+				/*System.out.println(printWithTrain());
 				System.out.println("LR:"+this.countTrainsLR);
 				System.out.println("RL:"+this.countTrainsRL);
-				System.out.println(isEdge(pos));
+				System.out.println(isEdge(pos));*/
 				wait(1000);
+				// Awake thread, prevents blockage when two trains are facing each other
+				if(countTrainsLR == 1 && countTrainsRL ==  1) decrementCountRL(); 
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 			}
@@ -48,10 +50,10 @@ public class Railway {
 		while ((this.countTrainsLR != 0 && isEdge(pos)) || (index > 0 && this.withTrain[index - 1])) {
 			try {
 				System.out.println("Waiting in moveRightToLeft");	
-				System.out.println(printWithTrain());
+				/*System.out.println(printWithTrain());
 				System.out.println("LR:"+this.countTrainsLR);
 				System.out.println("RL:"+this.countTrainsRL);
-				System.out.println(isEdge(pos));		
+				System.out.println(isEdge(pos));*/	
 				wait(1000);
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
