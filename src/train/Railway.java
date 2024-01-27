@@ -11,8 +11,8 @@ import java.util.Arrays;
  */
 public class Railway {
 	private final Element[] elements;
-	private boolean trainLR = false;
-	private boolean trainRL = false;
+	private int countTrainsLR = 0;
+    private int countTrainsRL = 0;
 	private boolean[] withTrain;
 
 	public Railway(Element[] elements) {
@@ -26,6 +26,77 @@ public class Railway {
         Arrays.fill(withTrain, false);
 	}
 
+	public synchronized Position moveLeftToRigth(Position pos) {
+		int index = getElementIndexByPosition(pos);
+		while ((this.countTrainsRL != 0 && isEdge(pos)) || (index < elements.length - 1 && this.withTrain[index + 1]) ) {
+			try {
+				System.out.println("Waiting in moveLeftToRight");
+				System.out.println(printWithTrain());
+				System.out.println("LR:"+this.countTrainsLR);
+				System.out.println("RL:"+this.countTrainsRL);
+				System.out.println(isEdge(pos));
+				wait(1000);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+		}
+		return controlState(pos, index);
+	}
+
+    public synchronized Position moveRigthToLeft(Position pos) {
+		int index = getElementIndexByPosition(pos);
+		while ((this.countTrainsLR != 0 && isEdge(pos)) || (index > 0 && this.withTrain[index - 1])) {
+			try {
+				System.out.println("Waiting in moveRightToLeft");	
+				System.out.println(printWithTrain());
+				System.out.println("LR:"+this.countTrainsLR);
+				System.out.println("RL:"+this.countTrainsRL);
+				System.out.println(isEdge(pos));		
+				wait(1000);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}			
+		}
+		return controlState(pos, index);
+    }
+
+	public synchronized void incrementCountLR() {
+        countTrainsLR++;
+    }
+
+    public synchronized void incrementCountRL() {
+        countTrainsRL++;
+    }
+
+    public synchronized void decrementCountLR() {
+        countTrainsLR--;
+    }
+
+    public synchronized void decrementCountRL() {
+        countTrainsRL--;
+    }
+
+    public synchronized int getCountTrainsLR() {
+        return countTrainsLR;
+    }
+
+    public synchronized int getCountTrainsRL() {
+        return countTrainsRL;
+    }
+
+	public boolean[] getElementsWithTrain(){
+		return this.withTrain;
+	}
+	
+	public int getElementIndexByPosition (Position position) {
+        for (int i=0; i < elements.length; i++) {
+            if (elements[i].equals(position.getPos())) {
+            	return i; 
+            }
+		}
+		return -1;
+	}
+
 	public synchronized boolean isEdge(Position pos){		
 		int lastIndex = elements.length-1;
 		int elementIndex = this.getElementIndexByPosition(pos);
@@ -37,95 +108,53 @@ public class Railway {
 		}
 	}
 
-	public synchronized boolean conditionWithTrain(int index, Position pos){
-		if ( (pos.getDir() == Direction.LR) && (index < elements.length - 1) && (getElementIndexByPosition(pos)-1 == 0)) {
-			return this.withTrain[index + 1];
-		}else if((pos.getDir() == Direction.RL) && (index > 0) && (getElementIndexByPosition(pos)+1 == elements.length - 1)){
-			return this.withTrain[index - 1];
-		}else{
-			return false;
-		}
-	}
+	public synchronized Position controlState(Position pos, int index){
 
-	public synchronized Position moveLeftToRigth(Position pos) {
-		int index = getElementIndexByPosition(pos);
-		//System.out.println(conditionWithTrain(index,pos));
-		while ((this.trainRL && isEdge(pos)) || (conditionWithTrain(index,pos)) ) {
-		//while ( (conditionWithTrain(index))) {
-			try {
-				System.out.println("Waiting in moveLeftToRight");
-				wait(1000);
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
+		if (pos.getDir() == Direction.LR){
+			if (index < elements.length - 1) {
+				if (index+1 == elements.length - 1){
+					this.withTrain[index+1] = false;
+					this.withTrain[index] = false;
+					Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
+				}else{
+					this.withTrain[index+1] = true;
+					this.withTrain[index] = false;
+					Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
+				}	
+				notifyAll();		
+				return new Position(elements[index + 1], Direction.LR);			
+			} else if (index == elements.length - 1) {
+				this.withTrain[index] = false;
+				incrementCountRL();
+				decrementCountLR();
+				notifyAll();
+				return new Position(elements[index], Direction.RL);			
+			} else {
+				return new Position(elements[index - 1], Direction.RL);
+			}
+		}else{
+			if (index > 0) {
+				if (index-1 == 0){
+					this.withTrain[index-1] = false;
+					this.withTrain[index] = false;
+					Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
+				}else{
+					this.withTrain[index-1] = true;
+					this.withTrain[index] = false;
+					Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
+				  }
+				notifyAll();
+				return new Position(elements[index - 1], Direction.RL);
+			} else if (index == 0) {
+				this.withTrain[index] = false;
+				incrementCountLR();
+				decrementCountRL();
+				notifyAll();
+				return new Position(elements[index], Direction.LR);
+			} else {
+				return new Position(elements[index + 1], Direction.LR);
 			}
 		}
-		if (index < elements.length - 1) {
-			this.withTrain[index+1] = true;
-			this.withTrain[index] = false;
-			notifyAll();
-			return new Position(elements[index + 1], Direction.LR);			
-		} else if (index == elements.length - 1) {
-			this.withTrain[index] = false;
-			this.trainLR = false;
-			notifyAll();
-			return new Position(elements[index], Direction.RL);			
-		} else {
-			return new Position(elements[index - 1], Direction.RL);
-		}
-	}
-
-    public synchronized Position moveRigthToLeft(Position pos) {
-		int index = getElementIndexByPosition(pos);
-		//System.out.println(conditionWithTrain(index,pos));
-		while ((this.trainLR && isEdge(pos)) || (conditionWithTrain(index,pos)) ) {
-		//while ( (conditionWithTrain(index))) {
-			try {
-				System.out.println("Waiting in moveRightToLeft");
-				wait(1000);
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-			}			
-		}
-		if (index > 0) {
-			this.withTrain[index-1] = true;
-			this.withTrain[index] = false;
-			notifyAll();
-			return new Position(elements[index - 1], Direction.RL);
-		} else if (index == 0) {
-			this.withTrain[index] = false;
-			this.trainRL = false;
-			notifyAll();
-			return new Position(elements[index], Direction.LR);
-		} else {
-			return new Position(elements[index + 1], Direction.LR);
-		}
-    }
-
-	public synchronized void setTrainLR(boolean value) {
-		this.trainLR = value;
-		notifyAll(); // Awake the threads
-	}
-	
-	public synchronized void setTrainRL(boolean value) {
-		this.trainRL = value;
-		notifyAll(); // Awake the threads
-	}
-
-	public boolean getTrainLR(){
-		return this.trainLR;
-	}
-
-	public boolean getTrainRL(){
-		return this.trainRL;
-	}
-	
-	public int getElementIndexByPosition (Position position) {
-        for (int i=0; i < elements.length; i++) {
-            if (elements[i].equals(position.getPos())) {
-            	return i; 
-            }
-		}
-		return -1;
 	}
 
 	@Override
