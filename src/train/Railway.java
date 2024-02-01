@@ -28,16 +28,15 @@ public class Railway {
 
 	public synchronized Position moveLeftToRigth(Position pos) {
 		int index = getElementIndexByPosition(pos);
-		while ((this.countTrainsRL != 0 && isEdge(pos)) || (index < elements.length - 1 && this.withTrain[index + 1]) ) {
+		while ((this.countTrainsRL != 0 && isEdge(pos) && hasTrainOnRailway())  || (index < (elements.length-1) && this.withTrain[index + 1]) ) {
 			try {
 				System.out.println("Waiting in moveLeftToRight");
-				/*System.out.println(printWithTrain());
+				System.out.println(printWithTrain());
 				System.out.println("LR:"+this.countTrainsLR);
 				System.out.println("RL:"+this.countTrainsRL);
-				System.out.println(isEdge(pos));*/
+				System.out.println(isEdge(pos));
+				System.out.println(hasTrainOnRailway());
 				wait(1000);
-				// Awake thread, prevents blockage when two trains are facing each other
-				if(countTrainsLR == 1 && countTrainsRL ==  1) decrementCountRL(); 
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 			}
@@ -50,10 +49,10 @@ public class Railway {
 		while ((this.countTrainsLR != 0 && isEdge(pos)) || (index > 0 && this.withTrain[index - 1])) {
 			try {
 				System.out.println("Waiting in moveRightToLeft");	
-				/*System.out.println(printWithTrain());
+				System.out.println(printWithTrain());
 				System.out.println("LR:"+this.countTrainsLR);
 				System.out.println("RL:"+this.countTrainsRL);
-				System.out.println(isEdge(pos));*/	
+				System.out.println(isEdge(pos));
 				wait(1000);
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
@@ -117,11 +116,11 @@ public class Railway {
 				if (index+1 == elements.length - 1){
 					this.withTrain[index+1] = false;
 					this.withTrain[index] = false;
-					Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
+					//Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
 				}else{
 					this.withTrain[index+1] = true;
 					this.withTrain[index] = false;
-					Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
+					//Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
 				}	
 				notifyAll();		
 				return new Position(elements[index + 1], Direction.LR);			
@@ -139,11 +138,11 @@ public class Railway {
 				if (index-1 == 0){
 					this.withTrain[index-1] = false;
 					this.withTrain[index] = false;
-					Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
+					//Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
 				}else{
 					this.withTrain[index-1] = true;
 					this.withTrain[index] = false;
-					Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
+					//Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
 				  }
 				notifyAll();
 				return new Position(elements[index - 1], Direction.RL);
@@ -183,5 +182,14 @@ public class Railway {
         }
         result.append("]");
         return result.toString();
+    }
+
+	public synchronized boolean hasTrainOnRailway() {
+		for (int i = 0; i < withTrain.length; i++) {
+            if (this.withTrain[i] && this.elements[i] instanceof Section ) {
+                return true;
+            }
+        }
+        return false;
     }
 }

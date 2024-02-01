@@ -35,17 +35,14 @@ public class Train implements Runnable {
 		this.railway = railway;
 	}
 	
-	public void moveToNextPosition() throws InterruptedException {		
+	public void moveToNextPosition() throws InterruptedException {
 		if (pos.getDir() == Direction.RL) {			
 			this.pos = this.railway.moveRigthToLeft(this.pos);			
 		}else{
 			this.pos = this.railway.moveLeftToRigth(this.pos);
 		}
 		System.out.println(this);
-		System.out.println(this.railway.printWithTrain());
-		/*System.out.println("LR:"+this.railway.getTrainLR());
-		System.out.println("RL:"+this.railway.getTrainRL());
-		System.out.println(this.railway.isEdge(this.pos));*/
+		//System.out.println(this+" "+this.railway.printWithTrain()+" LR:"+this.railway.getCountTrainsLR()+" RL:"+this.railway.getCountTrainsRL()+" "+this.railway.isEdge(this.pos));
 	}
 
 	@Override
@@ -61,7 +58,7 @@ public class Train implements Runnable {
 	@Override
 	public void run() {
 		int i = 1;
-		while (i < 20) {
+		while (i < 200) {
 			try {
 				moveToNextPosition();
 			} catch (InterruptedException e) {
