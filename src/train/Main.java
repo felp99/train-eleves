@@ -14,21 +14,11 @@ public class Main {
 		System.out.println("The railway is:");
 		System.out.println("\t" + r);
 		Position p1 = new Position(A, Direction.LR);
-		Position p2 = new Position(D, Direction.RL);
 		try {
-			Train t1 = new Train("1", r, p1);
-			Train t2 = new Train("2", r, p1);	
-			Train t3 = new Train("3", r, p2);		
+			Train t1 = new Train("1", r, p1);	
 			System.out.println(t1);
-			System.out.println(t2);
 
 			Thread thread1 = new Thread(t1); thread1.setName("T1"); thread1.start();
-			r.incrementCountLR();
-			Thread.sleep(5);	
-			Thread thread2 = new Thread(t2); thread2.setName("T2"); thread2.start();
-			r.incrementCountLR();
-			Thread thread3 = new Thread(t3); thread2.setName("T3"); thread3.start();
-			r.incrementCountRL();
 			
 		} catch (BadPositionForTrainException e) {
 			System.out.println("Le train " + e.getMessage());
