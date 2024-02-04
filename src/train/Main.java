@@ -17,9 +17,9 @@ public class Main {
     public static void main(String[] args) throws InterruptedException {
         
         // Decompose to test exercise solution 1
-        //exerciseOne();
+        exerciseOne();
         // Decompose to test exercise solution 2
-        exerciseTwo();
+        //exerciseTwo();
     }
 
     public static void exerciseOne() throws InterruptedException{

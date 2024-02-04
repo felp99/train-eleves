@@ -56,7 +56,7 @@ public class Train implements Runnable {
      * 
      * @throws InterruptedException If the thread is interrupted while waiting.
      */
-    public void moveToNextPosition() throws InterruptedException {
+    public synchronized void moveToNextPosition() throws InterruptedException {
         if (pos.getDir() == Direction.RL) {           
             this.pos = this.railway.moveRigthToLeft(this.pos);          
         } else {

@@ -88,31 +88,47 @@ public class Railway {
         return controlState(pos, index);
     }
 
-    /**
-     * Increments the count of trains moving from left to right.
+     /**
+     * Increases the count of trains moving from left to right (LR).
+     * Throws an exception if the invariant is violated.
      */
     public synchronized void incrementCountLR() {
+        if (countTrainsLR < 0) {
+            throw new IllegalStateException("Invariant Violation: countTrainsLR is negative");
+        }
         countTrainsLR++;
     }
 
     /**
-     * Increments the count of trains moving from right to left.
+     * Increases the count of trains moving from right to left (RL).
+     * Throws an exception if the invariant is violated.
      */
     public synchronized void incrementCountRL() {
+        if (countTrainsRL < 0) {
+            throw new IllegalStateException("Invariant Violation: countTrainsRL is negative");
+        }
         countTrainsRL++;
     }
 
     /**
-     * Decrements the count of trains moving from left to right.
+     * Decreases the count of trains moving from left to right (LR).
+     * Throws an exception if the invariant is violated.
      */
     public synchronized void decrementCountLR() {
+        if (countTrainsLR < 0) {
+            throw new IllegalStateException("Invariant Violation: countTrainsLR is negative");
+        }
         countTrainsLR--;
     }
 
     /**
-     * Decrements the count of trains moving from right to left.
+     * Decreases the count of trains moving from right to left (RL).
+     * Throws an exception if the invariant is violated.
      */
     public synchronized void decrementCountRL() {
+        if (countTrainsRL < 0) {
+            throw new IllegalStateException("Invariant Violation: countTrainsRL is negative");
+        }
         countTrainsRL--;
     }
 
@@ -177,6 +193,8 @@ public class Railway {
 
    /**
      * Controls the state of the railway after a train moves.
+     * Checks if safety invariants are maintained and updates the state of the railway.
+     * Throws an exception if invariants are violated.
      * 
      * @param pos   The current position of the train.
      * @param index The index of the element in the circuit.
@@ -185,6 +203,11 @@ public class Railway {
     public synchronized Position controlState(Position pos, int index) {
 
         int nextIndex = (pos.getDir() == Direction.LR) ? index + 1 : index - 1;
+
+        // Safety Invariant Check
+        if (withTrain.length != elements.length) {
+            throw new IllegalStateException("Invariant Violation: Length mismatch between withTrain and elements");
+        }
 
         if (isValidIndex(nextIndex) && this.elements[nextIndex] instanceof Section) {
             this.withTrain[nextIndex] = true;
